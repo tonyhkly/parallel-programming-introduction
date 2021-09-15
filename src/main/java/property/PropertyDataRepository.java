@@ -5,6 +5,12 @@ import java.util.List;
 public class PropertyDataRepository {
 
     public List<Property> getAll() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         return List.of(
                 new Property(1114, 300000, "1 real road"),
                 new Property(2335, 1200000, "3 real road"),
@@ -17,5 +23,15 @@ public class PropertyDataRepository {
                 new Property(967756,7300000, "100 real road"),
                 new Property(107778, 807000, "19 chilli road")
         );
+    }
+
+    public Property getFullDetailsOfPropertyById(Long id) {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return new Property(1114, 300000, "1 real road");
     }
 }
