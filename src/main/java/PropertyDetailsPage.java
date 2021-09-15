@@ -2,25 +2,30 @@ import googlemaps.GoogleMapsDataFetcher;
 import property.Property;
 import property.PropertyDataRepository;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 public class PropertyDetailsPage {
 
-
     //completeable ftures examples
-    public void showPropertyDetailsPage() {
+    public void showPropertyDetailsPageForFirstProperty() {
+        System.out.println(LocalDateTime.now() + ": Start Time");
         MortgageCalculator mortgageCalculator = new MortgageCalculator();
         GoogleMapsDataFetcher googleMapsDataFetcher = new GoogleMapsDataFetcher();
         PropertyDataRepository propertyDataRepository = new PropertyDataRepository();
 
-        List<Property> properties = propertyDataRepository.getAll();
+        System.out.println(LocalDateTime.now() + ": Get detailed property");
+        Property detailedProperty = propertyDataRepository.getFullDetailsOfPropertyById(1234L);
 
-        Property detailedProperty = propertyDataRepository.getFullDetailsOfPropertyById(properties.get(0).getId());
+        System.out.println(LocalDateTime.now() + ": Get mortgage price properties");
+        mortgageCalculator.getMortgagePrice(detailedProperty.getId());
 
-        mortgageCalculator.getMortgagePrice(12346L);
-        googleMapsDataFetcher.getGoogleMapData("SW16 4QF");
+        System.out.println(LocalDateTime.now() + ": Get google map data");
+        googleMapsDataFetcher.getGoogleMapData(detailedProperty.getAddress());
+
+        System.out.println(LocalDateTime.now() + ": End Time");
     }
 
-
     //parallel stream example
+
+
 }
