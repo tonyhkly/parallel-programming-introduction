@@ -10,7 +10,7 @@ public class GoogleMapsDataFetcher {
 
     private void callGoogleMaps() {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

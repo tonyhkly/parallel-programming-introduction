@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 
 class PropertyDetailsPageTest {
 
@@ -8,6 +8,14 @@ class PropertyDetailsPageTest {
     void testShowPropertyDetailsPageForFirstProperty() {
         PropertyDetailsPage propertyDetailsPage = new PropertyDetailsPage();
 
-        propertyDetailsPage.showPropertyDetailsPageForFirstProperty();
+        propertyDetailsPage.showPropertyDetailsPageForFirstProperty(123L);
+    }
+
+    @Test
+    void testShowMultiplePropertyDetailsPageForFirstProperty() {
+        PropertyDetailsPage propertyDetailsPage = new PropertyDetailsPage();
+
+        List<Long> propertyIds = List.of(1L, 2L, 3L, 4L, 5L);
+        propertyDetailsPage.getDetailsOfMultipleProperties(propertyIds);
     }
 }
