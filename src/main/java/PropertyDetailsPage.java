@@ -1,4 +1,4 @@
-;import estateagentdetails.EstateAgentDetailsFetcher;
+import estateagentdetails.EstateAgentDetailsFetcher;
 import googlemaps.GoogleMapsDataFetcher;
 import property.FullPropertyDetails;
 import property.Property;
@@ -6,6 +6,11 @@ import property.PropertyDataRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+;
 
 public class PropertyDetailsPage {
 
@@ -21,36 +26,44 @@ public class PropertyDetailsPage {
         this.propertyDataRepository = new PropertyDataRepository();
     }
 
-    //completeable future example
+    //CompletableFuture example
     public FullPropertyDetails showPropertyDetailsPageForFirstProperty(Long propertyId) {
-        System.out.println(LocalDateTime.now() + ": Start Time");
+        System.out.println(LocalDateTime.now() + ": ***** Start Time *****");
 
         System.out.println(LocalDateTime.now() + ": Get detailed property");
         Property detailedProperty = propertyDataRepository.getFullDetailsOfPropertyById(propertyId);
 
         System.out.println(LocalDateTime.now() + ": Get mortgage price properties");
-        Long mortgagePrice = mortgageCalculator.getMortgagePrice(detailedProperty.getId());
+        CompletableFuture<Long> mortgagePriceFuture = CompletableFuture.supplyAsync(() -> mortgageCalculator.getMortgagePrice(detailedProperty.getId()));
 
         System.out.println(LocalDateTime.now() + ": Get google map data");
-        String googleMapData = googleMapsDataFetcher.getGoogleMapData(detailedProperty.getAddress());
+        CompletableFuture<String> googleMapDataFuture = CompletableFuture.supplyAsync(() -> googleMapsDataFetcher.getGoogleMapData(detailedProperty.getAddress()));
 
         System.out.println(LocalDateTime.now() + ": Get estate agent details");
-        String estateAgentDetails = estateAgentDetailsFetcher.getEsateAgentDetails();
+        CompletableFuture<String> estateAgentDetailsFuture = CompletableFuture.supplyAsync(() -> estateAgentDetailsFetcher.getEsateAgentDetails());
 
-        System.out.println(LocalDateTime.now() + ": End Time");
+        try {
+            FullPropertyDetails fullPropertyDetails = new FullPropertyDetails(detailedProperty, googleMapDataFuture.get(), mortgagePriceFuture.get(), estateAgentDetailsFuture.get());
+            System.out.println(LocalDateTime.now() + ": ***** End Time *****");
 
-        return new FullPropertyDetails(detailedProperty, googleMapData, mortgagePrice, estateAgentDetails);
+            return fullPropertyDetails;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     //parallel stream example
     public List<FullPropertyDetails> getDetailsOfMultipleProperties(List<Long> propertyIds) {
-        for (Long propertyId : propertyIds) {
-            System.out.println(LocalDateTime.now() + ": START Getting details for property with id: " + propertyId);
+        System.out.println(LocalDateTime.now() + ": ************* START Getting details for propertyIds *************");
 
-            showPropertyDetailsPageForFirstProperty(propertyId);
-            System.out.println(LocalDateTime.now() + ": END Getting details for property with id: " + propertyId);
-        }
+        List<FullPropertyDetails> propertyDetailsList = propertyIds.stream()
+                .map(this::showPropertyDetailsPageForFirstProperty)
+                .parallel()
+                .collect(Collectors.toList());
 
-        return List.of();
+        System.out.println(LocalDateTime.now() + ": ************* END Getting details for propertyIds *************");
+
+        return propertyDetailsList;
     }
 }
